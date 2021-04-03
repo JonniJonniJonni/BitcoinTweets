@@ -1,6 +1,7 @@
-from TwitterAPI import TwitterAPI
+from TwitterAPI import TwitterAPI, TwitterRequestError, TwitterConnectionError
 import json
 
+#
 f = open("credentials.txt",'r')
 
 with open('credentials.txt') as f:
@@ -8,29 +9,21 @@ with open('credentials.txt') as f:
     for line in f:
         key, value = line.strip().split('=')
         data[key] = value
-print(data["consumer_key"])
-api = TwitterAPI(data["consumer_key"],data["consumer_secret"],data["access_token_key"], data["access_token_secret"])
+api = TwitterAPI(data['consumer_key'], data['consumer_secret'], data['access_token_key'], data['access_token_secret'])
 
 counter = 0
-
+verified_tweets = 0
 while True:
     try:
-        iterator = api.request('statuses/filter', {'track':'bitcoin'}).get_iterator()
-
+        iterator = api.request('statuses/filter', {'track':'bitcoin'}).get_iterator()  # get tweet
+        crypto = ["btc", "bitcoin"] # keywords
         for item in iterator:
-
-            if True:
-            # if item['verified'].lower() == "true":
-            #     print("hi")
-            # print(item['text'])
-            # print(item["verified"])
-                crypto = ["btc", "bitcoin"]
-                tweet = item['text'].lower()
+            tweet = item['text'].lower()  # make tweet text lowercase
+            if item['user']['verified']:  # if tweet is from verified user
                 for i in crypto:
-                    if i in tweet:
-
-                        counter += 1
-                        print(counter)
+                    if i in tweet:  # if keyword in the text of the tweet
+                        verified_tweets += 1  # add to verified user counter
+                        print(item)
                         break
 
             elif 'disconnect' in item:
@@ -41,6 +34,12 @@ while True:
                 else:
                     # temporary interruption, re-try request
                     break
+            else:  # if tweet is from non verified user
+                for i in crypto:
+                    if i in tweet:
+                        counter += 1
+                        counter += verified_tweets  # add 1 and # verified tweets to overall counter
+                        break
     except TwitterRequestError as e:
         if e.status_code < 500:
             # something needs to be fixed before re-connecting
@@ -51,3 +50,5 @@ while True:
     except TwitterConnectionError:
         # temporary interruption, re-try request
         pass
+
+
