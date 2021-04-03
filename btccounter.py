@@ -2,15 +2,14 @@ from TwitterAPI import TwitterAPI, TwitterRequestError, TwitterConnectionError
 import json
 
 #
-# f = open("credentials.txt",'r')
-#
-# with open('credentials.txt') as f:
-#     data = {}
-#     for line in f:
-#         key, value = line.strip().split('=')
-#         data[key] = value
-# print(data["consumer_key"])
-api = TwitterAPI("","","","")
+f = open("credentials.txt",'r')
+
+with open('credentials.txt') as f:
+    data = {}
+    for line in f:
+        key, value = line.strip().split('=')
+        data[key] = value
+api = TwitterAPI(data['consumer_key'], data['consumer_secret'], data['access_token_key'], data['access_token_secret'])
 
 counter = 0
 verified_tweets = 0
